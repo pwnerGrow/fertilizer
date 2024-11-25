@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced EC Calculator</title>
+</head>
+<body>
+    <h1>Advanced EC Calculator</h1>
+    
+    <h3>1. Input Base Water Parameters</h3>
+    <label for="roEC">RO Water EC (mS/cm):</label>
+    <input type="number" id="roEC" value="0.2" step="0.01"> mS/cm
+    <br>
+    <label for="roPH">RO Water pH:</label>
+    <input type="number" id="roPH" value="7.2" step="0.1">
+    
+    <h3>2. Input Actual EC of Concentrated A and B</h3>
+    <label for="ecA">Actual EC of A (mS/cm per 1 ml/L):</label>
+    <input type="number" id="ecA" value="1.25" step="0.01">
+    <br>
+    <label for="ecB">Actual EC of B (mS/cm per 1 ml/L):</label>
+    <input type="number" id="ecB" value="1.25" step="0.01">
+    <br>
+    <label for="abRatio">A:B Ratio:</label>
+    <select id="abRatio">
+        <option value="1">1:1</option>
+        <option value="1.2">1:1.2</option>
+    </select>
+
+    <h3>3. Calculate EC for a given ml/L</h3>
+    <label for="mlPerLiter">Amount of A and B (ml/L):</label>
+    <input type="number" id="mlPerLiter" value="2" step="0.1"> ml/L
+    <p><em>* Adjusted according to the selected A:B ratio.</em></p>
+    <button onclick="calculateEC()">Calculate EC</button>
+    <p id="resultEC"></p>
+    
+    <h3>4. Calculate ml/L for a target EC</h3>
+    <label for="targetEC">Target EC:</label>
+    <input type="number" id="targetEC" value="3.0" step="0.1"> mS/cm
+    <button onclick="calculateMlPerLiter()">Calculate ml/L</button>
+    <p id="resultMlPerLiter"></p>
+
+    <h3>5. Calculate total A and B for a given water volume</h3>
+    <label for="waterVolume">Water Volume (liters):</label>
+    <input type="number" id="waterVolume" value="150" step="1"> liters
+    <br>
+    <label for="targetECForVolume">Target EC:</label>
+    <input type="number" id="targetECForVolume" value="3.0" step="0.1"> mS/cm
+    <button onclick="calculateTotalAB()">Calculate Total A and B</button>
+    <p id="resultTotalAB"></p>
+
+    <h3>3. EC Table (EC Range: 0.8 - 3.5)</h3>
+    <button onclick="generateECTable()">Generate EC Table</button>
+    <table id="ecTable" border="1" style="margin-top: 10px; width: 70%;">
+        <thead>
+            <tr>
+                <th>Target EC (mS/cm)</th>
+                <th>Required A (ml/L)</th>
+                <th>Required B (ml/L)</th>
+                <th>Total A (ml)</th>
+                <th>Total B (ml)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Table rows will be generated here -->
+        </tbody>
+    </table>
+
+    <script>
+        function calculateEC() {
+            const roEC = parseFloat(document.getElementById("roEC").value);
+            const ecA = parseFloat(document.getElementById("ecA").value);
+            const ecB = parseFloat(document.getElementById("ecB").value);
+            const mlPerLiter = parseFloat(document.getElementById("mlPerLiter").value);
+            const abRatio = parseFloat(document.getElementById("abRatio").value);
+
+            const ec = (ecA + ecB * abRatio) * mlPerLiter + roEC;
+            document.getElementById("resultEC").innerText = `Predicted EC: ${ec.toFixed(2)} mS/cm`;
+        }
+
+        function calculateMlPerLiter() {
+            const roEC = parseFloat(document.getElementById("roEC").value);
+            const ecA = parseFloat(document.getElementById("ecA").value);
+            const ecB = parseFloat(document.getElementById("ecB").value);
+            const targetEC = parseFloat(document.getElementById("targetEC").value);
+            const abRatio = parseFloat(document.getElementById("abRatio").value);
+
+            const mlPerLiter = (targetEC - roEC) / (ecA + ecB * abRatio);
+            document.getElementById("resultMlPerLiter").innerText = `Required A and B: ${mlPerLiter.toFixed(2)} ml/L`;
+        }
+
+        function calculateTotalAB() {
+            const roEC = parseFloat(document.getElementById("roEC").value);
+            const ecA = parseFloat(document.getElementById("ecA").value);
+            const ecB = parseFloat(document.getElementById("ecB").value);
+            const waterVolume = parseFloat(document.getElementById("waterVolume").value);
+            const targetECForVolume = parseFloat(document.getElementById("targetECForVolume").value);
+            const abRatio = parseFloat(document.getElementById("abRatio").value);
+
+            const mlPerLiter = (targetECForVolume - roEC) / (ecA + ecB * abRatio);
+            const totalA = mlPerLiter * waterVolume;
+            const totalB = mlPerLiter * waterVolume * abRatio;
+
+            document.getElementById("resultTotalAB").innerText = 
+                `To achieve EC ${targetECForVolume.toFixed(2)} mS/cm in ${waterVolume.toFixed(2)} liters of water:
+                Use ${totalA.toFixed(2)} ml of A and ${totalB.toFixed(2)} ml of B.`;
+        }
+
+        function generateECTable() {
+            const roEC = parseFloat(document.getElementById("roEC").value);
+            const ecA = parseFloat(document.getElementById("ecA").value);
+            const ecB = parseFloat(document.getElementById("ecB").value);
+            const waterVolume = parseFloat(document.getElementById("waterVolume").value);
+            const abRatio = parseFloat(document.getElementById("abRatio").value);
+            const tableBody = document.getElementById("ecTable").querySelector("tbody");
+            
+            tableBody.innerHTML = "";
+
+            for (let targetEC = 0.8; targetEC <= 3.5; targetEC += 0.2) {
+                const mlPerLiter = (targetEC - roEC) / (ecA + ecB * abRatio);
+                const totalA = mlPerLiter * waterVolume;
+                const totalB = mlPerLiter * waterVolume * abRatio;
+
+                const row = document.createElement("tr");
+
+                const targetECCell = document.createElement("td");
+                targetECCell.textContent = targetEC.toFixed(2);
+
+                const requiredACell = document.createElement("td");
+                requiredACell.textContent = mlPerLiter.toFixed(2);
+
+                const requiredBCell = document.createElement("td");
+                requiredBCell.textContent = (mlPerLiter * abRatio).toFixed(2);
+
+                const totalACell = document.createElement("td");
+                totalACell.textContent = totalA.toFixed(2);
+
+                const totalBCell = document.createElement("td");
+                totalBCell.textContent = totalB.toFixed(2);
+
+                row.appendChild(targetECCell);
+                row.appendChild(requiredACell);
+                row.appendChild(requiredBCell);
+                row.appendChild(totalACell);
+                row.appendChild(totalBCell);
+
+                tableBody.appendChild(row);
+            }
+        }
+    </script>
+</body>
+</html>
