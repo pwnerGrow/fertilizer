@@ -185,7 +185,7 @@
             potassiumNitrate: { N: 130, K: 460 },
             molybdenum: { Mo: 396 }
         };
-
+    
         const stockA = {
             calciumNitrate: 700,
             calciumChloride: 300,
@@ -196,29 +196,34 @@
             zincEDTA: 0.5,
             copperEDTA: 0.3
         };
-
+    
         const stockB = {
             magnesiumSulfate: 800,
             MKP: 700,
             potassiumNitrate: 400,
             molybdenum: 0.05
         };
-
+    
         function calculateFormulation() {
             const roEC = parseFloat(document.getElementById("roEC").value);
-            const ecA = parseFloat(document.getElementById("ecA").value);
-            const ecB = parseFloat(document.getElementById("ecB").value);
             const targetEC2 = parseFloat(document.getElementById("targetEC2").value);
             const waterVolume = parseFloat(document.getElementById("waterVolume").value);
-
+            const ecA = parseFloat(document.getElementById("ecA").value);
+            const ecB = parseFloat(document.getElementById("ecB").value);
+            const abRatio = parseFloat(document.getElementById("abRatio").value);
+    
             const totalEC = targetEC2 - roEC;
-            const mlPerLiter = totalEC / (ecA + ecB);
-            const totalA = mlPerLiter * waterVolume;
-            const totalB = mlPerLiter * waterVolume;
-
-            document.getElementById("formulationResult").innerText = 
+            const ratioFactor = 1 + abRatio;
+            const mlPerLiter = totalEC / ((ecA + ecB * abRatio) / ratioFactor);
+            const mlA = mlPerLiter;
+            const mlB = mlPerLiter * abRatio;
+    
+            const totalA = mlA * waterVolume;
+            const totalB = mlB * waterVolume;
+    
+            document.getElementById("formulationResult").innerText =
                 `To achieve EC ${targetEC2.toFixed(2)} mS/cm in ${waterVolume} liters: Use ${totalA.toFixed(2)} ml of A and ${totalB.toFixed(2)} ml of B.`;
-
+    
             const calculatePPM = (stock, mlPerL) => {
                 const ppm = {};
                 for (const [compound, grams] of Object.entries(stock)) {
@@ -228,14 +233,14 @@
                 }
                 return ppm;
             };
-
-            const ppmA = calculatePPM(stockA, mlPerLiter);
-            const ppmB = calculatePPM(stockB, mlPerLiter);
+    
+            const ppmA = calculatePPM(stockA, mlA);
+            const ppmB = calculatePPM(stockB, mlB);
             const totalPPM = { ...ppmA };
             for (const [element, ppm] of Object.entries(ppmB)) {
                 totalPPM[element] = (totalPPM[element] || 0) + ppm;
             }
-
+    
             const profileTable = document.getElementById("profileTable");
             profileTable.innerHTML = "";
             for (const [element, ppm] of Object.entries(totalPPM)) {
@@ -248,16 +253,16 @@
                 row.appendChild(ppmCell);
                 profileTable.appendChild(row);
             }
-
+    
             const npkRatio = calculateNPKRatio(totalPPM);
             document.getElementById("npkRatio").innerText = `NPK Ratio: ${npkRatio}`;
         }
-
+    
         function calculateNPKRatio(ppm) {
             const N = ppm.N || 0;
             const P = ppm.P || 0;
             const K = ppm.K || 0;
-
+    
             const min = Math.min(N, P, K);
             return `${(N / min).toFixed(2)}:${(P / min).toFixed(2)}:${(K / min).toFixed(2)}`;
         }
