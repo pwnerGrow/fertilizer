@@ -17,20 +17,21 @@
     
     <h3>2. Input Actual EC of Concentrated A and B</h3>
     <label for="ecA">Actual EC of A (mS/cm per 1 ml/L):</label>
-    <input type="number" id="ecA" value="0.25" step="0.01">
+    <input type="number" id="ecA" value="0.24" step="0.01">
     <br>
     <label for="ecB">Actual EC of B (mS/cm per 1 ml/L):</label>
-    <input type="number" id="ecB" value="0.25" step="0.01">
+    <input type="number" id="ecB" value="0.24" step="0.01">
     <br>
     <label for="abRatio">A:B Ratio:</label>
     <select id="abRatio">
         <option value="1">1:1</option>
         <option value="1.2">1:1.2</option>
+        <option value="1.5">1:1.5</option>
     </select>
 
     <h3>3. Calculate EC for a given ml/L</h3>
     <label for="mlPerLiter">Amount of A and B (ml/L):</label>
-    <input type="number" id="mlPerLiter" value="2" step="0.1"> ml/L
+    <input type="number" id="mlPerLiter" value="1" step="0.1"> ml/L
     <p><em>* Adjusted according to the selected A:B ratio.</em></p>
     <button onclick="calculateEC()">Calculate EC</button>
     <p id="resultEC"></p>
@@ -147,6 +148,118 @@
 
                 tableBody.appendChild(row);
             }
+        }
+    </script>
+    <h3>3. Formulation Calculator</h3>
+    <label for="targetEC">Target EC (mS/cm):</label>
+    <input type="number" id="targetEC2" value="1.6" step="0.1">
+    <label for="waterVolume">Water Volume (liters):</label>
+    <input type="number" id="waterVolume" value="150" step="1">
+    <button onclick="calculateFormulation()">Calculate Formulation</button>
+    <p id="formulationResult"></p>
+
+    <h3>Fertilizer Profile</h3>
+    <table id="fertilizerTable" border="1" style="margin-top: 10px; width: 70%;">
+        <thead>
+            <tr>
+                <th>Element</th>
+                <th>PPM</th>
+            </tr>
+        </thead>
+        <tbody id="profileTable"></tbody>
+    </table>
+    <p id="npkRatio"></p>
+
+    <script>
+        const nutrients = {
+            calciumNitrate: { N: 170, Ca: 240 },
+            calciumChloride: { Ca: 360 },
+            FeEDDHA: { Fe: 60 },
+            FeEDTA: { Fe: 130 },
+            MnEDTA: { Mn: 125 },
+            boron: { B: 205 },
+            zincEDTA: { Zn: 130 },
+            copperEDTA: { Cu: 130 },
+            magnesiumSulfate: { Mg: 100, S: 130 },
+            MKP: { P: 228, K: 280 },
+            potassiumNitrate: { N: 130, K: 460 },
+            molybdenum: { Mo: 396 }
+        };
+
+        const stockA = {
+            calciumNitrate: 700,
+            calciumChloride: 300,
+            FeEDDHA: 13.5,
+            FeEDTA: 8.4,
+            MnEDTA: 3,
+            boron: 1,
+            zincEDTA: 0.5,
+            copperEDTA: 0.3
+        };
+
+        const stockB = {
+            magnesiumSulfate: 800,
+            MKP: 700,
+            potassiumNitrate: 400,
+            molybdenum: 0.05
+        };
+
+        function calculateFormulation() {
+            const roEC = parseFloat(document.getElementById("roEC").value);
+            const ecA = parseFloat(document.getElementById("ecA").value);
+            const ecB = parseFloat(document.getElementById("ecB").value);
+            const targetEC2 = parseFloat(document.getElementById("targetEC2").value);
+            const waterVolume = parseFloat(document.getElementById("waterVolume").value);
+
+            const totalEC = targetEC2 - roEC;
+            const mlPerLiter = totalEC / (ecA + ecB);
+            const totalA = mlPerLiter * waterVolume;
+            const totalB = mlPerLiter * waterVolume;
+
+            document.getElementById("formulationResult").innerText = 
+                `To achieve EC ${targetEC2.toFixed(2)} mS/cm in ${waterVolume} liters: Use ${totalA.toFixed(2)} ml of A and ${totalB.toFixed(2)} ml of B.`;
+
+            const calculatePPM = (stock, mlPerL) => {
+                const ppm = {};
+                for (const [compound, grams] of Object.entries(stock)) {
+                    for (const [element, ppmPerGram] of Object.entries(nutrients[compound])) {
+                        ppm[element] = (ppm[element] || 0) + (grams * ppmPerGram * mlPerL) / 5000;
+                    }
+                }
+                return ppm;
+            };
+
+            const ppmA = calculatePPM(stockA, mlPerLiter);
+            const ppmB = calculatePPM(stockB, mlPerLiter);
+            const totalPPM = { ...ppmA };
+            for (const [element, ppm] of Object.entries(ppmB)) {
+                totalPPM[element] = (totalPPM[element] || 0) + ppm;
+            }
+
+            const profileTable = document.getElementById("profileTable");
+            profileTable.innerHTML = "";
+            for (const [element, ppm] of Object.entries(totalPPM)) {
+                const row = document.createElement("tr");
+                const elementCell = document.createElement("td");
+                elementCell.textContent = element;
+                const ppmCell = document.createElement("td");
+                ppmCell.textContent = ppm.toFixed(2);
+                row.appendChild(elementCell);
+                row.appendChild(ppmCell);
+                profileTable.appendChild(row);
+            }
+
+            const npkRatio = calculateNPKRatio(totalPPM);
+            document.getElementById("npkRatio").innerText = `NPK Ratio: ${npkRatio}`;
+        }
+
+        function calculateNPKRatio(ppm) {
+            const N = ppm.N || 0;
+            const P = ppm.P || 0;
+            const K = ppm.K || 0;
+
+            const min = Math.min(N, P, K);
+            return `${(N / min).toFixed(2)}:${(P / min).toFixed(2)}:${(K / min).toFixed(2)}`;
         }
     </script>
 </body>
