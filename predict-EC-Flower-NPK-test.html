@@ -111,35 +111,41 @@
         <input type="number" id="hoclPPM" value="50" step="10">
     </div>
 
-    <!-- Input EC of A and B -->
-    <h3>2. Input Actual EC of Concentrated A and B</h3>
-    <label for="ecA">Actual EC of A (mS/cm per 1 ml/L):</label>
-    <input type="number" id="ecA" value="0.24" step="0.01">
-    <br>
-    <label for="ecB">Actual EC of B (mS/cm per 1 ml/L):</label>
-    <input type="number" id="ecB" value="0.24" step="0.01">
+    <!-- Input EC of A, B, and CalMag -->
+<h3>2. Input Actual EC of Concentrated A, B, and CalMag</h3>
+<label for="ecA">Actual EC of A (mS/cm per 1 ml/L):</label>
+<input type="number" id="ecA" value="0.24" step="0.01">
+<br>
+<label for="ecB">Actual EC of B (mS/cm per 1 ml/L):</label>
+<input type="number" id="ecB" value="0.24" step="0.01">
+<br>
+<label for="ecCalMag">Actual EC of CalMag (mS/cm per 1 ml/L):</label>
+<input type="number" id="ecCalMag" value="0.1" step="0.01">
 
-    <!-- Calculate ml/L of A and B -->
-    <h3>3. Calculate ml/L of A and B</h3>
-    <label for="targetEC">Target EC (mS/cm):</label>
-    <input type="number" id="targetEC" value="3.0" step="0.1"> 
-    <br>
-    <label for="abRatio">A:B Ratio:</label>
-    <select id="abRatio">
-        <option value="1">1:1 (Pre bloom)</option>
-        <option value="1.2">1:1.2 (Mid bloom)</option>
-        <option value="1.5">1:1.5 (Late bloom)</option>
-        <option value="0">0:1 (Before flush)</option>
-    </select>
-    <button onclick="calculateMlPerLiter()">Calculate ml/L</button>
-    <p id="resultMlPerLiter"></p>
+<!-- Calculate ml/L of A, B, and CalMag -->
+<h3>3. Calculate ml/L of A, B, and CalMag</h3>
+<label for="targetEC">Target EC (mS/cm):</label>
+<input type="number" id="targetEC" value="3.0" step="0.1"> 
+<br>
+<label for="abRatio">A:B Ratio:</label>
+<select id="abRatio">
+    <option value="1">1:1 (Pre bloom)</option>
+    <option value="1.2">1:1.2 (Mid bloom)</option>
+    <option value="1.5">1:1.5 (Late bloom)</option>
+    <option value="0">0:1 (Before flush)</option>
+</select>
+<br>
+<label for="calMagEC">CalMag EC (mS/cm):</label>
+<input type="number" id="calMagEC" value="0.3" step="0.01">
+<button onclick="calculateMlPerLiter()">Calculate ml/L</button>
+<p id="resultMlPerLiter"></p>
 
-    <!-- Calculate Total A and B -->
-    <h3>4. Calculate Total A and B for a Given Water Volume</h3>
-    <label for="waterVolume">Water Volume (liters):</label>
-    <input type="number" id="waterVolume" value="150" step="1"> 
-    <button onclick="calculateTotalAB()">Calculate Total A and B</button>
-    <p id="resultTotalAB"></p>
+<!-- Calculate Total A, B, and CalMag -->
+<h3>4. Calculate Total A, B, and CalMag for a Given Water Volume</h3>
+<label for="waterVolume">Water Volume (liters):</label>
+<input type="number" id="waterVolume" value="150" step="1"> 
+<button onclick="calculateTotalABC()">Calculate Total A, B, and CalMag</button>
+<p id="resultTotalABC"></p>
 
     <!-- EC Table -->
     <h3>5. Generate EC Table (Range: 0.8 - 3.5)</h3>
@@ -214,61 +220,52 @@
             const hoClSection = document.getElementById("hoClSection");
             hoClSection.style.display = hoClSection.style.display === "none" ? "block" : "none";
         }
-
         function calculateMlPerLiter() {
-            const roEC = parseFloat(document.getElementById("roEC").value);
-            const targetEC = parseFloat(document.getElementById("targetEC").value);
-            const ecA = parseFloat(document.getElementById("ecA").value);
-            const ecB = parseFloat(document.getElementById("ecB").value);
-            const abRatio = parseFloat(document.getElementById("abRatio").value);
+    const roEC = parseFloat(document.getElementById("roEC").value);
+    const targetEC = parseFloat(document.getElementById("targetEC").value);
+    const ecA = parseFloat(document.getElementById("ecA").value);
+    const ecB = parseFloat(document.getElementById("ecB").value);
+    const ecCalMag = parseFloat(document.getElementById("ecCalMag").value);
+    const abRatio = parseFloat(document.getElementById("abRatio").value);
+    const calMagEC = parseFloat(document.getElementById("calMagEC").value);
 
-            if (targetEC <= roEC) {
-                document.getElementById("resultMlPerLiter").textContent = 
-                    "Error: Target EC must be greater than RO Water EC.";
-                return;
-            }
+    if (targetEC <= roEC) {
+        document.getElementById("resultMlPerLiter").textContent = 
+            "Error: Target EC must be greater than RO Water EC.";
+        return;
+    }
 
-            const effectiveEC = targetEC - roEC;
+    const effectiveEC = targetEC - roEC - calMagEC;
 
-            let mlA = 0, mlB = 0;
+    let mlA = 0, mlB = 0;
 
-            if (abRatio === 0) {
-                mlB = effectiveEC / ecB;
-            } else {
-                mlA = effectiveEC / (ecA + ecB * abRatio);
-                mlB = mlA * abRatio;
-            }
+    if (abRatio === 0) {
+        mlB = effectiveEC / ecB;
+    } else {
+        mlA = effectiveEC / (ecA + ecB * abRatio);
+        mlB = mlA * abRatio;
+    }
 
-            document.getElementById("resultMlPerLiter").textContent = 
-                `Required A: ${mlA.toFixed(2)} ml/L, Required B: ${mlB.toFixed(2)} ml/L`;
-        }
+    const mlCalMag = calMagEC / ecCalMag;
 
-        function calculateTotalAB() {
-            const waterVolume = parseFloat(document.getElementById("waterVolume").value);
-            const roEC = parseFloat(document.getElementById("roEC").value);
-            const targetEC = parseFloat(document.getElementById("targetEC").value);
-            const ecA = parseFloat(document.getElementById("ecA").value);
-            const ecB = parseFloat(document.getElementById("ecB").value);
-            const abRatio = parseFloat(document.getElementById("abRatio").value);
+    document.getElementById("resultMlPerLiter").textContent = 
+        `Required A: ${mlA.toFixed(2)} ml/L, Required B: ${mlB.toFixed(2)} ml/L, Required CalMag: ${mlCalMag.toFixed(2)} ml/L`;
+}
 
-            if (targetEC <= roEC) {
-                document.getElementById("resultTotalAB").textContent = 
-                    "Error: Target EC must be greater than RO Water EC.";
-                return;
-            }
+function calculateTotalABC() {
+    const waterVolume = parseFloat(document.getElementById("waterVolume").value);
+    const resultMlPerLiter = document.getElementById("resultMlPerLiter").textContent;
 
-            const effectiveEC = targetEC - roEC;
+    if (!resultMlPerLiter.includes("ml/L")) {
+        document.getElementById("resultTotalABC").textContent = "Please calculate ml/L first.";
+        return;
+    }
 
-            const mlA = abRatio === 0 ? 0 : effectiveEC / (ecA + (ecB * abRatio));
-            const mlB = abRatio === 0 ? effectiveEC / ecB : mlA * abRatio;
+    const [mlA, mlB, mlCalMag] = resultMlPerLiter.match(/([\d.]+) ml\/L/g).map(v => parseFloat(v));
 
-            const totalA = mlA * waterVolume;
-            const totalB = mlB * waterVolume;
-
-            document.getElementById("resultTotalAB").textContent = 
-                `Total A: ${totalA.toFixed(2)} ml, Total B: ${totalB.toFixed(2)} ml`;
-        }
-
+    document.getElementById("resultTotalABC").textContent = 
+        `Total A: ${(mlA * waterVolume).toFixed(2)} ml, Total B: ${(mlB * waterVolume).toFixed(2)} ml, Total CalMag: ${(mlCalMag * waterVolume).toFixed(2)} ml`;
+}
         function generateECTable() {
             const tableBody = document.getElementById("ecTableBody");
             tableBody.innerHTML = ""; // Clear existing rows
