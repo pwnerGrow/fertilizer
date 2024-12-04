@@ -3,125 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced EC Calculator</title>
+    <title>Fertilizer and NPK Profile Calculator</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1, h3 {
-            text-align: center;
-            color: #333;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        input, select {
-            margin-bottom: 10px;
-            padding: 5px;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        p {
-            margin-top: 10px;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, select, button { margin-bottom: 10px; padding: 5px; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f4f4f4; }
+        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; }
     </style>
 </head>
 <body>
-    <h1>Advanced EC Calculator</h1>
+    <h1>Fertilizer and NPK Profile Calculator</h1>
 
-    <!-- Base Water Parameters -->
-    <h3>1. Input Base Water Parameters</h3>
-    <label for="roEC">RO Water EC (mS/cm):</label>
-    <input type="number" id="roEC" value="0.2" step="0.01"> mS/cm
-    <br>
-    <label for="roPH">RO Water pH:</label>
-    <input type="number" id="roPH" value="7.2" step="0.1">
-
-    <!-- Stage Selection -->
-    <h3>2. Select Flowering Stage</h3>
-    <label for="stage">Flowering Stage:</label>
-    <select id="stage" onchange="updateStageInfo()">
-        <option value="1">Pre Bloom (Balanced with High K)</option>
-        <option value="2">Mid Bloom (High P and K)</option>
-        <option value="3">Late Bloom (High P and K, Very Low N)</option>
+    <!-- Input Parameters -->
+    <h3>1. Input Parameters</h3>
+    <label for="abcRatio">A:B:C Ratio:</label>
+    <select id="abcRatio">
+        <option value="40:30:30">Seedling (40:30:30)</option>
+        <option value="50:25:25">Vegetative (50:25:25)</option>
+        <option value="30:40:30">Flowering (30:40:30)</option>
+        <option value="20:40:40">Harvest (20:40:40)</option>
     </select>
-    <p id="stageInfo"></p>
-
-    <!-- Input EC of A, B, and C -->
-    <h3>3. Input Actual EC of Concentrated A, B, and C</h3>
-    <label for="ecA">Actual EC of A (mS/cm per 1 ml/L):</label>
-    <input type="number" id="ecA" value="0.24" step="0.01">
     <br>
-    <label for="ecB">Actual EC of B (mS/cm per 1 ml/L):</label>
-    <input type="number" id="ecB" value="0.24" step="0.01">
-    <br>
-    <label for="ecC">Actual EC of C (mS/cm per 1 ml/L):</label>
-    <input type="number" id="ecC" value="0.24" step="0.01">
-
-    <!-- Calculate ml/L of A, B, and C -->
-    <h3>4. Calculate ml/L of A, B, and C</h3>
-    <label for="targetEC">Target EC (mS/cm):</label>
-    <input type="number" id="targetEC" value="3.0" step="0.1"> 
-    <br>
-    <label for="abRatio">A:B:C Ratio:</label>
-    <select id="abRatio">
-        <option value="1:1:0">1:1:0 (Pre Bloom)</option>
-        <option value="1:1.5:0.5">1:1.5:0.5 (Mid Bloom)</option>
-        <option value="0:1:1">0:1:1 (Late Bloom)</option>
-    </select>
-    <button onclick="calculateMlPerLiter()">Calculate ml/L</button>
-    <p id="resultMlPerLiter"></p>
-
-    <!-- Calculate Total A, B, and C -->
-    <h3>5. Calculate Total A, B, and C for a Given Water Volume</h3>
     <label for="waterVolume">Water Volume (liters):</label>
-    <input type="number" id="waterVolume" value="150" step="1"> 
-    <button onclick="calculateTotalABC()">Calculate Total A, B, and C</button>
-    <p id="resultTotalABC"></p>
+    <input type="number" id="waterVolume" value="100" step="1">
+    <button onclick="calculateNPK()">Calculate NPK</button>
 
-    <!-- EC Table -->
-    <h3>6. Generate EC Table (Range: 0.8 - 3.5)</h3>
-    <button onclick="generateECTable()">Generate EC Table</button>
-    <table id="ecTable">
-        <thead>
-            <tr>
-                <th>Target EC (mS/cm)</th>
-                <th>Required A (ml/L)</th>
-                <th>Required B (ml/L)</th>
-                <th>Required C (ml/L)</th>
-                <th>Total A (ml)</th>
-                <th>Total B (ml)</th>
-                <th>Total C (ml)</th>
-            </tr>
-        </thead>
-        <tbody id="ecTableBody">
-            <!-- EC Table rows will be dynamically generated -->
-        </tbody>
-    </table>
-
-    <!-- Formulation Calculator -->
-    <h3>7. Formulation Calculator and NPK Profile</h3>
-    <button onclick="calculateFormulation()">Generate Formulation and NPK Profile</button>
+    <!-- Result Section -->
+    <h3>2. NPK Profile</h3>
     <table id="fertilizerTable">
         <thead>
             <tr>
@@ -130,148 +42,53 @@
             </tr>
         </thead>
         <tbody id="profileTable">
-            <!-- Profile rows will be dynamically generated -->
         </tbody>
     </table>
-    <p id="npkRatio"></p>
+    <p id="npkRatio" class="result"></p>
 
     <script>
-        const stages = {
-            "1": "Pre Bloom: Balanced nutrients with higher potassium to support flower formation.",
-            "2": "Mid Bloom: Increased phosphorus and potassium for bud development while reducing nitrogen.",
-            "3": "Late Bloom: High phosphorus and potassium with minimal nitrogen for enhanced quality before harvest."
-        };
-
-        function updateStageInfo() {
-            const stage = document.getElementById("stage").value;
-            document.getElementById("stageInfo").textContent = stages[stage];
-        }
-
-        function calculateMlPerLiter() {
-            const roEC = parseFloat(document.getElementById("roEC").value);
-            const targetEC = parseFloat(document.getElementById("targetEC").value);
-            const ecA = parseFloat(document.getElementById("ecA").value);
-            const ecB = parseFloat(document.getElementById("ecB").value);
-            const ecC = parseFloat(document.getElementById("ecC").value);
-            const abRatio = document.getElementById("abRatio").value.split(":").map(Number);
-
-            const [ratioA, ratioB, ratioC] = abRatio;
-            const totalRatio = ratioA * ecA + ratioB * ecB + ratioC * ecC;
-
-            if (targetEC <= roEC) {
-                document.getElementById("resultMlPerLiter").textContent = 
-                    "Error: Target EC must be greater than RO Water EC.";
-                return;
-            }
-
-            const effectiveEC = targetEC - roEC;
-
-            const mlA = (effectiveEC / totalRatio) * ratioA;
-            const mlB = (effectiveEC / totalRatio) * ratioB;
-            const mlC = (effectiveEC / totalRatio) * ratioC;
-
-            document.getElementById("resultMlPerLiter").textContent = 
-                `Required A: ${mlA.toFixed(2)} ml/L, Required B: ${mlB.toFixed(2)} ml/L, Required C: ${mlC.toFixed(2)} ml/L`;
-        }
-
-        function calculateTotalABC() {
-            const waterVolume = parseFloat(document.getElementById("waterVolume").value);
-
-            const resultMlPerLiter = document.getElementById("resultMlPerLiter").textContent;
-            if (!resultMlPerLiter.includes("ml/L")) {
-                document.getElementById("resultTotalABC").textContent = "Please calculate ml/L first.";
-                return;
-            }
-
-            const [mlA, mlB, mlC] = resultMlPerLiter.match(/([\d.]+) ml\/L/g).map(v => parseFloat(v));
-
-            document.getElementById("resultTotalABC").textContent = 
-                `Total A: ${(mlA * waterVolume).toFixed(2)} ml, Total B: ${(mlB * waterVolume).toFixed(2)} ml, Total C: ${(mlC * waterVolume).toFixed(2)} ml`;
-        }
-
-        function generateECTable() {
-            const tableBody = document.getElementById("ecTableBody");
-            tableBody.innerHTML = ""; // Clear existing rows
-            const roEC = parseFloat(document.getElementById("roEC").value);
-            const ecA = parseFloat(document.getElementById("ecA").value);
-            const ecB = parseFloat(document.getElementById("ecB").value);
-            const ecC = parseFloat(document.getElementById("ecC").value);
-            const abRatio = document.getElementById("abRatio").value.split(":").map(Number);
-            const waterVolume = parseFloat(document.getElementById("waterVolume").value);
-
-            for (let ec = 0.8; ec <= 3.5; ec += 0.2) {
-                const effectiveEC = ec - roEC;
-                const totalRatio = abRatio[0] * ecA + abRatio[1] * ecB + abRatio[2] * ecC;
-
-                const mlA = (effectiveEC / totalRatio) * abRatio[0];
-                const mlB = (effectiveEC / totalRatio) * abRatio[1];
-                const mlC = (effectiveEC / totalRatio) * abRatio[2];
-
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${ec.toFixed(1)}</td>
-                    <td>${mlA.toFixed(2)}</td>
-                    <td>${mlB.toFixed(2)}</td>
-                    <td>${mlC.toFixed(2)}</td>
-                    <td>${(mlA * waterVolume).toFixed(2)}</td>
-                    <td>${(mlB * waterVolume).toFixed(2)}</td>
-                    <td>${(mlC * waterVolume).toFixed(2)}</td>
-                `;
-                tableBody.appendChild(row);
-            }
-        }
-
-        // Nutrient mappings for each compound
+        // Nutrient data per gram of each component
         const nutrients = {
-            calciumNitrate: { N: 155, Ca: 190 },
-            calciumChloride: { Ca: 360 },
+            calciumNitrate: { N: 170, Ca: 240 },
             magnesiumSulfate: { Mg: 100, S: 130 },
             potassiumNitrate: { N: 130, K: 460 },
             MKP: { P: 228, K: 280 },
             potassiumSulfate: { K: 500, S: 180 },
-            FeEDDHA: { Fe: 60 },
-            FeEDTA: { Fe: 130 },
-            MnEDTA: { Mn: 125 },
             boron: { B: 205 },
+            FeEDDHA: { Fe: 60 },
+            MnEDTA: { Mn: 125 },
             zincEDTA: { Zn: 130 },
             copperEDTA: { Cu: 130 },
-            molybdenum: { Mo: 396 },
-            seaweedExtract: {},
-            humicAcid: {}
+            molybdenum: { Mo: 396 }
         };
 
-        // Formula definitions
-        const formulaA = {
-            calciumNitrate: 1000,
-            calciumChloride: 600,
-            FeEDDHA: 20,
-            FeEDTA: 10,
-            MnEDTA: 8,
-            boron: 3,
-            zincEDTA: 1,
-            copperEDTA: 0.5
-        };
+        // Stock concentrations for A, B, C (grams per 5L)
+        const stockA = { calciumNitrate: 650, boron: 1.5, FeEDDHA: 15 };
+        const stockB = { magnesiumSulfate: 850, potassiumNitrate: 450 };
+        const stockC = { MKP: 750, potassiumSulfate: 500, molybdenum: 0.08 };
 
-        const formulaB = {
-            magnesiumSulfate: 1200,
-            potassiumNitrate: 900,
-            MKP: 1200,
-            molybdenum: 0.1
-        };
+        function calculatePPM(stock, mlPerL) {
+            const ppm = {};
+            for (const [compound, grams] of Object.entries(stock)) {
+                for (const [element, ppmPerGram] of Object.entries(nutrients[compound] || {})) {
+                    ppm[element] = (ppm[element] || 0) + (grams * ppmPerGram * mlPerL) / 5000;
+                }
+            }
+            return ppm;
+        }
 
-        const formulaC = {
-            magnesiumSulfate: 800,
-            potassiumSulfate: 1000,
-            MKP: 1200
-        };
+        function calculateNPK() {
+            const abcRatio = document.getElementById("abcRatio").value.split(":").map(Number);
+            const waterVolume = parseFloat(document.getElementById("waterVolume").value);
 
-        function calculateFormulation() {
-            const profileTable = document.getElementById("profileTable");
-            profileTable.innerHTML = ""; // Clear existing rows
+            const totalRatio = abcRatio.reduce((a, b) => a + b, 0);
+            const mlPerL_A = abcRatio[0] / totalRatio;
+            const mlPerL_B = abcRatio[1] / totalRatio;
+            const mlPerL_C = abcRatio[2] / totalRatio;
 
-            const ppmA = calculatePPM(formulaA, 1);
-            const ppmB = calculatePPM(formulaB, 1);
-            const ppmC = calculatePPM(formulaC, 1);
+            const ppmA = calculatePPM(stockA, mlPerL_A);
+            const ppmB = calculatePPM(stockB, mlPerL_B);
+            const ppmC = calculatePPM(stockC, mlPerL_C);
 
             const totalPPM = { ...ppmA };
             for (const [element, ppm] of Object.entries(ppmB)) {
@@ -280,6 +97,9 @@
             for (const [element, ppm] of Object.entries(ppmC)) {
                 totalPPM[element] = (totalPPM[element] || 0) + ppm;
             }
+
+            const profileTable = document.getElementById("profileTable");
+            profileTable.innerHTML = ""; // Clear table
 
             for (const [element, ppm] of Object.entries(totalPPM)) {
                 const row = document.createElement("tr");
@@ -291,29 +111,14 @@
             document.getElementById("npkRatio").textContent = `NPK Ratio: ${npkRatio}`;
         }
 
-        function calculatePPM(formula, mlPerL) {
-            const ppm = {};
-            for (const [compound, grams] of Object.entries(formula)) {
-                const nutrientsForCompound = nutrients[compound];
-                if (!nutrientsForCompound) continue;
-
-                for (const [element, ppmPerGram] of Object.entries(nutrientsForCompound)) {
-                    ppm[element] = (ppm[element] || 0) + (grams * ppmPerGram * mlPerL) / 5000;
-                }
-            }
-            return ppm;
-        }
-
         function calculateNPKRatio(ppm) {
             const N = ppm.N || 0;
             const P = ppm.P || 0;
             const K = ppm.K || 0;
-            if (N === 0 && P === 0 && K === 0) return "0:0:0";
-
-            const min = Math.min(N || Infinity, P || Infinity, K || Infinity);
+            const min = Math.min(N, P, K);
+            if (min === 0) return "0:0:0";
             return `${(N / min).toFixed(2)}:${(P / min).toFixed(2)}:${(K / min).toFixed(2)}`;
         }
-    
     </script>
 </body>
 </html>
