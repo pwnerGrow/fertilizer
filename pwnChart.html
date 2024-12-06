@@ -178,7 +178,7 @@
 </body>
 <body>
     <h1>Burn and Turn Feed Chart</h1>
-    <table>
+    <table border="1">
         <thead>
             <tr>
                 <th>Stage</th>
@@ -192,104 +192,76 @@
                 <th>Mg (ppm)</th>
                 <th>S (ppm)</th>
                 <th>Micronutrients (ppm)</th>
+                <th>HOCL (mL/L)</th>
+                <th>DLI (mol/m²/day)</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td>Veg Days</td>
-                <td>1–10</td>
-                <td>1.4</td>
-                <td>2 : 2 : 1</td>
-                <td>120</td>
-                <td>50</td>
-                <td>100</td>
-                <td>140</td>
-                <td>50</td>
-                <td>90</td>
-                <td>6</td>
-            </tr>
-            <tr>
-                <td>Early Bloom</td>
-                <td>1–10</td>
-                <td>1.8</td>
-                <td>1 : 2 : 2</td>
-                <td>80</td>
-                <td>100</td>
-                <td>200</td>
-                <td>80</td>
-                <td>50</td>
-                <td>100</td>
-                <td>5.5</td>
-            </tr>
-            <tr>
-                <td>Bulking P1</td>
-                <td>11–20</td>
-                <td>2.0</td>
-                <td>0.5 : 2 : 2.5</td>
-                <td>60</td>
-                <td>120</td>
-                <td>250</td>
-                <td>60</td>
-                <td>50</td>
-                <td>120</td>
-                <td>6</td>
-            </tr>
-            <tr>
-                <td>Bulking P2</td>
-                <td>21–42</td>
-                <td>2.2</td>
-                <td>0.3 : 1.5 : 2.5</td>
-                <td>50</td>
-                <td>140</td>
-                <td>300</td>
-                <td>40</td>
-                <td>40</td>
-                <td>130</td>
-                <td>6.5</td>
-            </tr>
-            <tr>
-                <td>Late Bloom P1</td>
-                <td>43–49</td>
-                <td>2.4</td>
-                <td>0.3 : 1.5 : 3</td>
-                <td>40</td>
-                <td>150</td>
-                <td>350</td>
-                <td>30</td>
-                <td>30</td>
-                <td>140</td>
-                <td>7</td>
-            </tr>
-            <tr>
-                <td>Late Bloom P2</td>
-                <td>50–53</td>
-                <td>2.2</td>
-                <td>0.2 : 1.2 : 2.8</td>
-                <td>30</td>
-                <td>140</td>
-                <td>340</td>
-                <td>20</td>
-                <td>25</td>
-                <td>130</td>
-                <td>6.5</td>
-            </tr>
-            <tr>
-                <td>Flush</td>
-                <td>54–56</td>
-                <td>0.5</td>
-                <td>0 : 0 : 0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-            </tr>
+        <tbody id="feed-chart-body">
+            <!-- Dynamic rows will be added here -->
         </tbody>
     </table>
-</body>
-<body>
+
+    <script>
+        const burnAndTurnStages1 = [
+            { stage: "Veg Days", days: "1–10", ec: 2.5, ratio: "2:2:1", hocl: 1.33, dliFactor: 0.5 },
+            { stage: "Early Bloom", days: "1–10", ec: 2.8, ratio: "1:2:2", hocl: 1.33, dliFactor: 0.75 },
+            { stage: "Bulking P1", days: "11–20", ec: 3.0, ratio: "0.5:2:2.5", hocl: 1.33, dliFactor: 1 },
+            { stage: "Bulking P2", days: "21–42", ec: 3.0, ratio: "0.3:1.5:2.5", hocl: 1.33, dliFactor: 1 },
+            { stage: "Late Bloom P1", days: "43–49", ec: 1.8, ratio: "0.3:1.5:3", hocl: 1.33, dliFactor: 1 },
+            { stage: "Late Bloom P2", days: "50–53", ec: 0.8, ratio: "0.2:1.2:2.8", hocl: 1.33, dliFactor: 0.75 },
+            { stage: "Flush", days: "54–56", ec: 0.2, ratio: "0:0:0", hocl: 5.33, dliFactor: 0.5 }
+        ];
+
+        // Function to populate the feed chart dynamically
+        function populateFeedChart() {
+            const dliMax = 40; // Maximum DLI value, this can be dynamic as well
+            const feedChartBody = document.getElementById("feed-chart-body");
+
+            // Clear existing rows
+            feedChartBody.innerHTML = "";
+
+            burnAndTurnStages1.forEach(({ stage, days, ec, ratio, hocl, dliFactor }) => {
+                const dli = (dliFactor * dliMax).toFixed(2);
+
+                // Calculate ppm based on ratios
+                const [ratioA, ratioB, ratioC] = ratio.split(":").map(Number);
+                const totalRatio = ratioA + ratioB + ratioC;
+                const basePPM = ec * 1000; // Convert EC to PPM
+                const ppmN = ((ratioA / totalRatio) * basePPM).toFixed(1);
+                const ppmP = ((ratioB / totalRatio) * basePPM * 0.72).toFixed(1);
+                const ppmK = ((ratioC / totalRatio) * basePPM * 1.25).toFixed(1);
+                const ppmCa = ((ratioA / totalRatio) * basePPM * 0.19).toFixed(1);
+                const ppmMg = ((ratioB / totalRatio) * basePPM * 0.14).toFixed(1);
+                const ppmS = ((ratioC / totalRatio) * basePPM * 0.31).toFixed(1);
+                const ppmMicronutrients = (basePPM * 0.005).toFixed(1);
+
+                // Add row to the table
+                const row = `
+                    <tr>
+                        <td>${stage}</td>
+                        <td>${days}</td>
+                        <td>${ec}</td>
+                        <td>${ratio}</td>
+                        <td>${ppmN}</td>
+                        <td>${ppmP}</td>
+                        <td>${ppmK}</td>
+                        <td>${ppmCa}</td>
+                        <td>${ppmMg}</td>
+                        <td>${ppmS}</td>
+                        <td>${ppmMicronutrients}</td>
+                        <td>${hocl}</td>
+                        <td>${dli}</td>
+                    </tr>
+                `;
+                feedChartBody.innerHTML += row;
+            });
+        }
+
+        // Populate the feed chart on page load
+        populateFeedChart();
+    </script>
+
+
     <h1>Watering Schedule</h1>
     <table>
         <thead>
@@ -321,14 +293,23 @@
             </tr>
         </tbody>
     </table>
-    <div class="note">
-        <strong>Notes:</strong>
-        <ul>
-            <li>This schedule is consistent across all growth stages, including Veg, Bloom, and Flush.</li>
-            <li>The last watering (flush) helps to prevent salt buildup in the growing medium.</li>
-            <li>Monitor the moisture level of the coco medium and adjust the duration if overwatering or underwatering is observed.</li>
-        </ul>
-    </div>
+
+    <script>
+        function calculateHOCL(stageHOCL, waterVolume) {
+            return (stageHOCL * waterVolume).toFixed(2);
+        }
+
+        function displayResults() {
+            const stageHOCL = 1.33; // Default HOCL value per mL/L
+            const waterVolume = 150; // Default water volume in liters
+            const hoclAmount = calculateHOCL(stageHOCL, waterVolume);
+
+            console.log(`HOCL Amount: ${hoclAmount} mL for ${waterVolume} liters`);
+        }
+
+        // Call the function as an example
+        displayResults();
+    </script>
 </body>
 <body>
     <h1>Feed Chart Calculator</h1>
@@ -347,30 +328,28 @@
     <label for="c-ec">Part C (mS/cm):</label>
     <input type="number" id="c-ec" step="0.01" value="0.5"><br><br>
 
-    <h2>Target EC and Water Volume</h2>
-    <label for="growth-stage">Select Growth Stage:</label>
-    <select id="growth-stage">
-        <!-- Burn and Turn Feeding Schedule -->
-        <option value="1.2,1.5,1.5,0.5">Veg Days 1-10 (EC: 1.2)</option>
-        <option value="1.4,2.0,2.0,0.5">Early Bloom Days 1-10 (EC: 1.4)</option>
-        <option value="1.6,1.5,2.5,2.5">Bulking P1 Days 11-20 (EC: 1.6)</option>
-        <option value="1.8,1.0,2.0,3.0">Bulking P2 Days 21-42 (EC: 1.8)</option>
-        <option value="2.0,0.5,1.5,3.0">Late Bloom P1 Days 43-49 (EC: 2.0)</option>
-        <option value="2.2,0.3,1.5,2.5">Late Bloom P2 Days 50-53 (EC: 2.2)</option>
-        <option value="1.8,0.0,1.5,1.5">Flush Stage Days 54-56 (EC: 1.8)</option>
-    
-        <!-- Original Feeding Schedule -->
-        <option value="1.2,1.5,1.5,0.5">Vegetative Week 1 (EC: 1.2)</option>
-        <option value="1.4,2.0,2.0,0.5">Vegetative Week 2 (EC: 1.4)</option>
-        <option value="1.6,2.5,2.5,1.0">Vegetative Week 3 (EC: 1.6)</option>
-        <option value="1.8,3.0,3.0,1.5">Vegetative Week 4 (EC: 1.8)</option>
-        <option value="1.6,1.0,2.5,2.5">Flowering Week 1 (EC: 1.6)</option>
-        <option value="1.8,0.5,2.0,3.0">Flowering Week 2 (EC: 1.8)</option>
-        <option value="2.0,0.3,1.5,3.0">Flowering Week 3 (EC: 2.0)</option>
-        <option value="2.2,0.3,1.5,2.5">Flowering Week 4 (EC: 2.2)</option>
-        <option value="1.8,0.0,1.5,1.5">Pre-Flush (EC: 1.8)</option>
-        <option value="0.5,0.0,0.0,0.0">Flush (EC: 0.5)</option>
-    </select><br><br>
+    <h2>Target EC, Water Volume, and Growth Stage</h2>
+    <label for="dli">Daily Light Integral (DLI) Maximum:</label>
+    <input type="number" id="dli" step="1" value="40"><br><br>
+
+    <!-- Feeding Schedule Selection -->
+    <label for="feeding-schedule">Select Feeding Schedule:</label><br>
+    <input type="radio" id="burn-and-turn" name="feeding-schedule" value="burn-and-turn" checked>
+    <label for="burn-and-turn">Burn and Turn Feeding Schedule</label><br>
+    <input type="radio" id="normal" name="feeding-schedule" value="normal">
+    <label for="normal">Normal Feeding Schedule</label><br><br>
+
+    <!-- Dropdown for Burn and Turn Feeding Schedule -->
+    <div id="burn-and-turn-schedule">
+        <label for="burn-and-turn-growth-stage">Select Growth Stage:</label>
+        <select id="burn-and-turn-growth-stage"></select>
+    </div>
+
+    <!-- Dropdown for Normal Feeding Schedule -->
+    <div id="normal-schedule" style="display: none;">
+        <label for="normal-growth-stage">Select Growth Stage:</label>
+        <select id="normal-growth-stage"></select>
+    </div>
 
     <label for="water-volume">Water Volume (liters):</label>
     <input type="number" id="water-volume" step="1" value="150"><br><br>
@@ -381,60 +360,130 @@
     <table border="1">
         <thead>
             <tr>
-                <th>Part</th>
-                <th>Amount (mL)</th>
+                <th>Stage</th>
+                <th>Days</th>
+                <th>Target EC</th>
+                <th>Ratio (A:B:C)</th>
+                <th>Amount A (mL)</th>
+                <th>Amount B (mL)</th>
+                <th>Amount C (mL)</th>
+                <th>HOCL (mL)</th>
+                <th>DLI (mol/m²/day)</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>Part A</td>
+                <td id="result-stage">-</td>
+                <td id="result-days">-</td>
+                <td id="result-ec">-</td>
+                <td id="result-ratio">-</td>
                 <td id="result-a">-</td>
-            </tr>
-            <tr>
-                <td>Part B</td>
                 <td id="result-b">-</td>
-            </tr>
-            <tr>
-                <td>Part C</td>
                 <td id="result-c">-</td>
+                <td id="result-hocl">-</td>
+                <td id="result-dli">-</td>
             </tr>
         </tbody>
     </table>
 
     <script>
+        const burnAndTurnStages = [
+            { stage: "Veg Days", days: "1–10", ec: 2.5, ratio: "2:2:1", hocl: 1.33, dliFactor: 0.5 },
+            { stage: "Early Bloom", days: "1–10", ec: 2.8, ratio: "1:2:2", hocl: 1.33, dliFactor: 0.75 },
+            { stage: "Bulking P1", days: "11–20", ec: 3.0, ratio: "0.5:2:2.5", hocl: 1.33, dliFactor: 1 },
+            { stage: "Bulking P2", days: "21–42", ec: 3.0, ratio: "0.3:1.5:2.5", hocl: 1.33, dliFactor: 1 },
+            { stage: "Late Bloom P1", days: "43–49", ec: 1.8, ratio: "0.3:1.5:3", hocl: 1.33, dliFactor: 1 },
+            { stage: "Late Bloom P2", days: "50–53", ec: 0.8, ratio: "0.2:1.2:2.8", hocl: 1.33, dliFactor: 0.75 },
+            { stage: "Flush", days: "54–56", ec: 0.2, ratio: "0:0:0", hocl: 5.33, dliFactor: 0.5 }
+        ];
+    
+        const normalStages = [
+            { stage: "Vegetative Week 1", days: "1–7", ec: 1.2, ratio: "1.5:1.5:0.5", hocl: 1.33, dliFactor: 0.375 },
+            { stage: "Vegetative Week 2", days: "8–14", ec: 1.4, ratio: "2:2:0.5", hocl: 1.33, dliFactor: 0.5 },
+            { stage: "Vegetative Week 3", days: "15–21", ec: 1.6, ratio: "2.5:2.5:1", hocl: 1.33, dliFactor: 0.625 },
+            { stage: "Vegetative Week 4", days: "22–28", ec: 1.8, ratio: "3:3:1.5", hocl: 1.33, dliFactor: 0.75 },
+            { stage: "Flowering Week 1", days: "29–35", ec: 1.6, ratio: "1:2.5:2.5", hocl: 1.33, dliFactor: 0.875 },
+            { stage: "Flowering Week 2", days: "36–42", ec: 1.8, ratio: "0.5:2:3", hocl: 1.33, dliFactor: 0.875 },
+            { stage: "Flowering Week 3", days: "43–49", ec: 2.0, ratio: "0.3:1.5:3", hocl: 1.33, dliFactor: 1 },
+            { stage: "Flowering Week 4", days: "50–56", ec: 2.2, ratio: "0.3:1.5:2.5", hocl: 1.33, dliFactor: 1 },
+            { stage: "Pre-Flush", days: "57–63", ec: 1.8, ratio: "0:1.5:1.5", hocl: 2.66, dliFactor: 0.5 },
+            { stage: "Flush", days: "64–70", ec: 0.5, ratio: "0:0:0", hocl: 5.33, dliFactor: 0 }
+        ];
+    
+        function populateStages(scheduleId, stages) {
+            const schedule = document.getElementById(scheduleId);
+            schedule.innerHTML = ""; // Clear current options
+            stages.forEach(({ stage, days, ec, ratio, hocl, dliFactor }) => {
+                const dliMax = parseFloat(document.getElementById("dli").value);
+                const dli = (dliFactor * dliMax).toFixed(2);
+                const option = document.createElement("option");
+                option.value = `${stage},${days},${ec},${ratio},${hocl},${dli}`;
+                option.textContent = `${stage} (${days}) - EC: ${ec}, DLI: ${dli}`;
+                schedule.appendChild(option);
+            });
+        }
+    
+        function updateSchedules() {
+            // Populate both schedules
+            populateStages("burn-and-turn-growth-stage", burnAndTurnStages1);
+            populateStages("normal-growth-stage", normalStages);
+    
+            // Show the correct schedule dropdown based on selected feeding schedule
+            const selectedSchedule = document.querySelector('input[name="feeding-schedule"]:checked').value;
+            document.getElementById("burn-and-turn-schedule").style.display = selectedSchedule === "burn-and-turn" ? "block" : "none";
+            document.getElementById("normal-schedule").style.display = selectedSchedule === "normal" ? "block" : "none";
+        }
+    
         function calculateFertilizer() {
+            const selectedSchedule = document.querySelector('input[name="feeding-schedule"]:checked').value;
+            const stageDropdown = selectedSchedule === "burn-and-turn"
+                ? document.getElementById("burn-and-turn-growth-stage")
+                : document.getElementById("normal-growth-stage");
+    
+            const [stage, days, targetEC, ratio, hocl, dli] = stageDropdown.value.split(',');
+    
             const baseEC = parseFloat(document.getElementById("base-ec").value);
             const waterVolume = parseFloat(document.getElementById("water-volume").value);
-            const [targetEC, ratioA, ratioB, ratioC] = document.getElementById("growth-stage").value.split(',').map(Number);
             const ecPerML_A = parseFloat(document.getElementById("a-ec").value);
             const ecPerML_B = parseFloat(document.getElementById("b-ec").value);
             const ecPerML_C = parseFloat(document.getElementById("c-ec").value);
-
-            if (isNaN(baseEC) || isNaN(waterVolume) || isNaN(targetEC)) {
-                alert("Please enter valid values.");
-                return;
-            }
-
+    
             const remainingEC = targetEC - baseEC;
             if (remainingEC <= 0) {
                 alert("Base EC exceeds or matches target EC.");
                 return;
             }
-
+    
+            const [ratioA, ratioB, ratioC] = ratio.split(':').map(Number);
             const totalRatio = ratioA + ratioB + ratioC;
-
+    
             const mlPerLiterA = (remainingEC * (ratioA / totalRatio)) / ecPerML_A;
             const mlPerLiterB = (remainingEC * (ratioB / totalRatio)) / ecPerML_B;
             const mlPerLiterC = (remainingEC * (ratioC / totalRatio)) / ecPerML_C;
-
+    
             const totalA = (mlPerLiterA * waterVolume).toFixed(2);
             const totalB = (mlPerLiterB * waterVolume).toFixed(2);
             const totalC = (mlPerLiterC * waterVolume).toFixed(2);
-
-            document.getElementById("result-a").textContent = `${totalA} mL`;
-            document.getElementById("result-b").textContent = `${totalB} mL`;
-            document.getElementById("result-c").textContent = `${totalC} mL`;
+            const totalHOCL = (hocl * waterVolume).toFixed(2);
+    
+            document.getElementById("result-stage").textContent = stage;
+            document.getElementById("result-days").textContent = days;
+            document.getElementById("result-ec").textContent = targetEC;
+            document.getElementById("result-ratio").textContent = ratio;
+            document.getElementById("result-a").textContent = totalA;
+            document.getElementById("result-b").textContent = totalB;
+            document.getElementById("result-c").textContent = totalC;
+            document.getElementById("result-hocl").textContent = totalHOCL;
+            document.getElementById("result-dli").textContent = dli;
         }
+    
+        // Event listeners for schedule updates
+        document.getElementById("burn-and-turn").addEventListener("change", updateSchedules);
+        document.getElementById("normal").addEventListener("change", updateSchedules);
+        document.getElementById("dli").addEventListener("input", updateSchedules);
+    
+        // Initialize schedules
+        updateSchedules();
     </script>
 </body>
 </html>
