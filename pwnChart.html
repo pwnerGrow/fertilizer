@@ -1,0 +1,276 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            text-align: center;
+            padding: 10px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Feed Chart</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Week</th>
+                <th>Growth Stage</th>
+                <th>Target EC (mS/cm)</th>
+                <th>Ratio (A:B:C)</th>
+                <th>N (ppm)</th>
+                <th>P (ppm)</th>
+                <th>K (ppm)</th>
+                <th>Ca (ppm)</th>
+                <th>Mg (ppm)</th>
+                <th>S (ppm)</th>
+                <th>Micronutrients (ppm)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Vegetative Week 1</td>
+                <td>1.2</td>
+                <td>1.5 : 1.5 : 0.5</td>
+                <td>90</td>
+                <td>40</td>
+                <td>60</td>
+                <td>120</td>
+                <td>40</td>
+                <td>80</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Vegetative Week 2</td>
+                <td>1.4</td>
+                <td>2 : 2 : 1</td>
+                <td>110</td>
+                <td>50</td>
+                <td>100</td>
+                <td>140</td>
+                <td>50</td>
+                <td>90</td>
+                <td>6</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Vegetative Week 3</td>
+                <td>1.6</td>
+                <td>2.5 : 2.5 : 1</td>
+                <td>130</td>
+                <td>60</td>
+                <td>120</td>
+                <td>160</td>
+                <td>60</td>
+                <td>100</td>
+                <td>7</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>Vegetative Week 4</td>
+                <td>1.8</td>
+                <td>3 : 3 : 1.5</td>
+                <td>150</td>
+                <td>70</td>
+                <td>140</td>
+                <td>180</td>
+                <td>70</td>
+                <td>110</td>
+                <td>7.5</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>Flowering Week 1</td>
+                <td>1.6</td>
+                <td>1 : 2 : 2</td>
+                <td>100</td>
+                <td>80</td>
+                <td>200</td>
+                <td>80</td>
+                <td>50</td>
+                <td>100</td>
+                <td>6</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>Flowering Week 2</td>
+                <td>1.8</td>
+                <td>0.5 : 2 : 2.5</td>
+                <td>80</td>
+                <td>100</td>
+                <td>250</td>
+                <td>60</td>
+                <td>50</td>
+                <td>120</td>
+                <td>6.5</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>Flowering Week 3</td>
+                <td>2.0</td>
+                <td>0.3 : 1.5 : 2.5</td>
+                <td>60</td>
+                <td>120</td>
+                <td>300</td>
+                <td>50</td>
+                <td>40</td>
+                <td>130</td>
+                <td>7</td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td>Flowering Week 4</td>
+                <td>2.2</td>
+                <td>0.3 : 1.5 : 2.5</td>
+                <td>50</td>
+                <td>140</td>
+                <td>350</td>
+                <td>40</td>
+                <td>30</td>
+                <td>140</td>
+                <td>7.5</td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td>Pre-Flush</td>
+                <td>1.8</td>
+                <td>0 : 1.5 : 1.5</td>
+                <td>0</td>
+                <td>100</td>
+                <td>300</td>
+                <td>0</td>
+                <td>20</td>
+                <td>120</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td>Flush</td>
+                <td>0.5</td>
+                <td>0 : 0 : 0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+<body>
+    <h1>Feed Chart Calculator</h1>
+
+    <h2>Water Base Information</h2>
+    <label for="base-ph">Base pH:</label>
+    <input type="number" id="base-ph" step="0.01" value="6.0"><br><br>
+    <label for="base-ec">Base EC (mS/cm):</label>
+    <input type="number" id="base-ec" step="0.01" value="0.1"><br><br>
+
+    <h2>Actual EC of Fertilizer (per 1 mL/L)</h2>
+    <label for="a-ec">Part A (mS/cm):</label>
+    <input type="number" id="a-ec" step="0.01" value="0.3"><br><br>
+    <label for="b-ec">Part B (mS/cm):</label>
+    <input type="number" id="b-ec" step="0.01" value="0.4"><br><br>
+    <label for="c-ec">Part C (mS/cm):</label>
+    <input type="number" id="c-ec" step="0.01" value="0.5"><br><br>
+
+    <h2>Target EC and Water Volume</h2>
+    <label for="growth-stage">Select Growth Stage:</label>
+    <select id="growth-stage">
+        <option value="1.2,1.5,1.5,0.5">Vegetative Week 1 (EC: 1.2)</option>
+        <option value="1.4,2.0,2.0,0.5">Vegetative Week 2 (EC: 1.4)</option>
+        <option value="1.6,2.5,2.5,1.0">Vegetative Week 3 (EC: 1.6)</option>
+        <option value="1.8,3.0,3.0,1.5">Vegetative Week 4 (EC: 1.8)</option>
+        <option value="1.6,1.0,2.5,2.5">Flowering Week 1 (EC: 1.6)</option>
+        <option value="1.8,0.5,2.0,3.0">Flowering Week 2 (EC: 1.8)</option>
+        <option value="2.0,0.3,1.5,3.0">Flowering Week 3 (EC: 2.0)</option>
+        <option value="2.2,0.3,1.5,2.5">Flowering Week 4 (EC: 2.2)</option>
+        <option value="1.8,0.0,1.5,1.5">Pre-Flush (EC: 1.8)</option>
+        <option value="0.5,0.0,0.0,0.0">Flush (EC: 0.5)</option>
+    </select><br><br>
+
+    <label for="water-volume">Water Volume (liters):</label>
+    <input type="number" id="water-volume" step="1" value="150"><br><br>
+
+    <button onclick="calculateFertilizer()">Calculate Fertilizer</button>
+
+    <h2>Results</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Part</th>
+                <th>Amount (mL)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Part A</td>
+                <td id="result-a">-</td>
+            </tr>
+            <tr>
+                <td>Part B</td>
+                <td id="result-b">-</td>
+            </tr>
+            <tr>
+                <td>Part C</td>
+                <td id="result-c">-</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function calculateFertilizer() {
+            const baseEC = parseFloat(document.getElementById("base-ec").value);
+            const waterVolume = parseFloat(document.getElementById("water-volume").value);
+            const [targetEC, ratioA, ratioB, ratioC] = document.getElementById("growth-stage").value.split(',').map(Number);
+            const ecPerML_A = parseFloat(document.getElementById("a-ec").value);
+            const ecPerML_B = parseFloat(document.getElementById("b-ec").value);
+            const ecPerML_C = parseFloat(document.getElementById("c-ec").value);
+
+            if (isNaN(baseEC) || isNaN(waterVolume) || isNaN(targetEC)) {
+                alert("Please enter valid values.");
+                return;
+            }
+
+            const remainingEC = targetEC - baseEC;
+            if (remainingEC <= 0) {
+                alert("Base EC exceeds or matches target EC.");
+                return;
+            }
+
+            const totalRatio = ratioA + ratioB + ratioC;
+
+            const mlPerLiterA = (remainingEC * (ratioA / totalRatio)) / ecPerML_A;
+            const mlPerLiterB = (remainingEC * (ratioB / totalRatio)) / ecPerML_B;
+            const mlPerLiterC = (remainingEC * (ratioC / totalRatio)) / ecPerML_C;
+
+            const totalA = (mlPerLiterA * waterVolume).toFixed(2);
+            const totalB = (mlPerLiterB * waterVolume).toFixed(2);
+            const totalC = (mlPerLiterC * waterVolume).toFixed(2);
+
+            document.getElementById("result-a").textContent = `${totalA} mL`;
+            document.getElementById("result-b").textContent = `${totalB} mL`;
+            document.getElementById("result-c").textContent = `${totalC} mL`;
+        }
+    </script>
+</body>
+</html>
